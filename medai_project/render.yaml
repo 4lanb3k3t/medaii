@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: medaii
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn medai_project.wsgi:application"
