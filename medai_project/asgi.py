@@ -8,9 +8,13 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 """
 
 import os
+import sys
+import django # type: ignore
 
-from django.core.asgi import get_asgi_application
+from django.core.asgi import get_asgi_application # type: ignore
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'medai_project.settings')
+
+django.setup()
 
 application = get_asgi_application()
