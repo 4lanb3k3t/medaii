@@ -20,6 +20,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
