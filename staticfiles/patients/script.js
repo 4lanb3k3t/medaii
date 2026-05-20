@@ -1,230 +1,632 @@
-let patientsCount = 0;
-let analysisCount = 0;
-let callsCount = 0;
-
-const diseases = [
-    "Простуда",
-    "Грипп",
-    "COVID-19",
-    "Ангина",
-    "Бронхит",
-    "Пневмония",
-    "Мигрень",
-    "Гастрит",
-    "Отравление",
-    "Аллергия",
-    "Астма",
-    "Диабет",
-    "Гипертония",
-    "Инфекция",
-    "ОРВИ",
-    "Тонзиллит",
-    "Аппендицит",
-    "Сердечная недостаточность",
-    "Язва желудка",
-    "Синусит"
-];
+alert("JS WORKS");
 
 document.addEventListener("DOMContentLoaded", function(){
 
-    loadHistory();
+const analyzeBtn =
+document.getElementById("analyze-btn");
 
-    const analyzeBtn = document.getElementById("analyze-btn");
+const resultDiv =
+document.getElementById("result");
 
-    analyzeBtn.addEventListener("click", function(){
+const nameInput =
+document.getElementById("name");
 
-        const name = document.getElementById("name").value;
-        const symptoms = document.getElementById("symptoms").value;
+const symptomsInput =
+document.getElementById("symptoms");
 
-        if(name === "" || symptoms === ""){
-            alert("Введите данные");
-            return;
-        }
+const historyDiv =
+document.getElementById("history");
 
-        const randomDisease =
-            diseases[Math.floor(Math.random() * diseases.length)];
+const patientsCount =
+document.getElementById("patients-count");
 
-        const result =
-        `
-        <div class="alert alert-danger">
-            <h4>Результат AI анализа</h4>
+const analysisCount =
+document.getElementById("analysis-count");
 
-            <p><b>Пациент:</b> ${name}</p>
+const callsCount =
+document.getElementById("calls-count");
 
-            <p><b>Симптомы:</b> ${symptoms}</p>
+const consultBtn =
+document.getElementById("consult-btn");
 
-            <p><b>Возможная болезнь:</b> ${randomDisease}</p>
+const consultResult =
+document.getElementById("consult-result");
 
-            <p><b>Рекомендация:</b>
-            Срочно обратитесь к врачу.</p>
-        </div>
-        `;
+const callBtn =
+document.getElementById("call-doctor");
 
-        document.getElementById("result").innerHTML = result;
+const addressInput =
+document.getElementById("address");
 
-        savePatient(name, symptoms, randomDisease);
+const doctorStatus =
+document.getElementById("doctor-status");
 
-        patientsCount++;
-        analysisCount++;
+const statusText =
+document.getElementById("status-text");
 
-        updateStats();
-    });
+const eta =
+document.getElementById("eta");
 
-    const consultBtn =
-        document.getElementById("consult-btn");
+const progressBar =
+document.getElementById("progress-bar");
 
-    consultBtn.addEventListener("click", function(){
+const gps =
+document.getElementById("gps");
 
-        const phone =
-            document.getElementById("consult-phone").value;
+let patients =
+JSON.parse(localStorage.getItem("patients")) || [];
 
-        const email =
-            document.getElementById("consult-email").value;
+let analysis =
+parseInt(localStorage.getItem("analysis")) || 0;
 
-        const text =
-            document.getElementById("consult-text").value;
+let calls =
+parseInt(localStorage.getItem("calls")) || 0;
 
-        if(phone === "" || email === "" || text === ""){
-            alert("Заполните поля");
-            return;
-        }
+const diseases = [
 
-        document.getElementById(
-            "consult-result"
-        ).style.display = "block";
+{
+name:"Простуда",
+keywords:["кашель","насморк","чихание","горло"],
+doctor:"Терапевт"
+},
 
-    });
+{
+name:"Грипп",
+keywords:["температура","озноб","ломота","слабость"],
+doctor:"Терапевт"
+},
 
-    const doctorBtn =
-        document.getElementById("call-doctor");
+{
+name:"Ковид-19",
+keywords:["температура","кашель","запах","вкус","одышка"],
+doctor:"Терапевт"
+},
 
-    doctorBtn.addEventListener("click", function(){
+{
+name:"Пневмония",
+keywords:["кашель","боль в груди","одышка","температура"],
+doctor:"Пульмонолог"
+},
 
-        const address =
-            document.getElementById("address").value;
+{
+name:"Бронхит",
+keywords:["кашель","мокрота","хрипы"],
+doctor:"Пульмонолог"
+},
 
-        if(address === ""){
-            alert("Введите адрес");
-            return;
-        }
+{
+name:"Астма",
+keywords:["одышка","хрипы","удушье"],
+doctor:"Пульмонолог"
+},
 
-        callsCount++;
+{
+name:"Ангина",
+keywords:["горло","глотать","температура"],
+doctor:"ЛОР"
+},
 
-        updateStats();
+{
+name:"Синусит",
+keywords:["нос","давление","голова"],
+doctor:"ЛОР"
+},
 
-        const status =
-            document.getElementById("doctor-status");
+{
+name:"Отит",
+keywords:["ухо","боль","слух"],
+doctor:"ЛОР"
+},
 
-        status.style.display = "block";
+{
+name:"Аллергия",
+keywords:["сыпь","зуд","чихание","слезы"],
+doctor:"Аллерголог"
+},
 
-        document.getElementById(
-            "status-text"
-        ).innerHTML =
-        "🚑 Врач выехал";
+{
+name:"Дерматит",
+keywords:["кожа","покраснение","зуд"],
+doctor:"Дерматолог"
+},
 
-        document.getElementById(
-            "eta"
-        ).innerHTML =
-        "⏳ Прибытие: 5 минут";
+{
+name:"Экзема",
+keywords:["кожа","трещины","зуд"],
+doctor:"Дерматолог"
+},
 
-        document.getElementById(
-            "gps"
-        ).innerHTML =
-        "📍 GPS: Врач движется к пациенту";
+{
+name:"Герпес",
+keywords:["губы","пузырьки","жжение"],
+doctor:"Дерматолог"
+},
 
-        let width = 0;
+{
+name:"Инфаркт",
+keywords:["сердце","боль в груди","давит","одышка"],
+doctor:"Кардиолог"
+},
 
-        const interval = setInterval(function(){
+{
+name:"Аритмия",
+keywords:["сердце","ритм","пульс"],
+doctor:"Кардиолог"
+},
 
-            width += 10;
+{
+name:"Гипертония",
+keywords:["давление","голова","тошнота"],
+doctor:"Кардиолог"
+},
 
-            document.getElementById(
-                "progress-bar"
-            ).style.width = width + "%";
+{
+name:"Инсульт",
+keywords:["онемение","речь","голова","паралич"],
+doctor:"Невролог"
+},
 
-            if(width >= 100){
+{
+name:"Мигрень",
+keywords:["голова","тошнота","свет"],
+doctor:"Невролог"
+},
 
-                clearInterval(interval);
+{
+name:"Остеохондроз",
+keywords:["спина","шея","позвоночник"],
+doctor:"Невролог"
+},
 
-                document.getElementById(
-                    "status-text"
-                ).innerHTML =
-                "✅ Врач прибыл";
-            }
+{
+name:"Сколиоз",
+keywords:["искривление","спина"],
+doctor:"Ортопед"
+},
 
-        }, 500);
+{
+name:"Артрит",
+keywords:["сустав","отек","боль"],
+doctor:"Ревматолог"
+},
 
-    });
+{
+name:"Артроз",
+keywords:["сустав","скованность"],
+doctor:"Ортопед"
+},
 
-});
+{
+name:"Перелом",
+keywords:["кость","травма","сломал"],
+doctor:"Травматолог"
+},
 
-function savePatient(name, symptoms, disease){
+{
+name:"Ушиб",
+keywords:["синяк","удар","боль"],
+doctor:"Травматолог"
+},
 
-    let history =
-        JSON.parse(localStorage.getItem("patients")) || [];
+{
+name:"Гастрит",
+keywords:["желудок","изжога","живот"],
+doctor:"Гастроэнтеролог"
+},
 
-    history.push({
-        name: name,
-        symptoms: symptoms,
-        disease: disease
-    });
+{
+name:"Язва",
+keywords:["живот","рвота","боль"],
+doctor:"Гастроэнтеролог"
+},
 
-    localStorage.setItem(
-        "patients",
-        JSON.stringify(history)
-    );
+{
+name:"Аппендицит",
+keywords:["правый бок","живот","тошнота"],
+doctor:"Хирург"
+},
 
-    loadHistory();
+{
+name:"Панкреатит",
+keywords:["поджелудочная","живот","боль"],
+doctor:"Гастроэнтеролог"
+},
+
+{
+name:"Отравление",
+keywords:["рвота","тошнота","еда","понос"],
+doctor:"Терапевт"
+},
+
+{
+name:"Диабет",
+keywords:["жажда","сахар","мочеиспускание"],
+doctor:"Эндокринолог"
+},
+
+{
+name:"Гипотиреоз",
+keywords:["усталость","щитовидка","сонливость"],
+doctor:"Эндокринолог"
+},
+
+{
+name:"Ожирение",
+keywords:["вес","ожирение"],
+doctor:"Диетолог"
+},
+
+{
+name:"Цистит",
+keywords:["мочеиспускание","жжение"],
+doctor:"Уролог"
+},
+
+{
+name:"Пиелонефрит",
+keywords:["почки","температура","боль"],
+doctor:"Нефролог"
+},
+
+{
+name:"Анемия",
+keywords:["слабость","головокружение","усталость"],
+doctor:"Гематолог"
+},
+
+{
+name:"Онкология",
+keywords:["опухоль","слабость","рак"],
+doctor:"Онколог"
+},
+
+{
+name:"Депрессия",
+keywords:["грусть","апатия","усталость"],
+doctor:"Психолог"
+},
+
+{
+name:"Тревога",
+keywords:["страх","паника","нервы"],
+doctor:"Психотерапевт"
+},
+
+{
+name:"Бессонница",
+keywords:["сон","не сплю","усталость"],
+doctor:"Невролог"
+},
+
+{
+name:"Эпилепсия",
+keywords:["судороги","припадок"],
+doctor:"Невролог"
+},
+
+{
+name:"Менингит",
+keywords:["шея","температура","голова"],
+doctor:"Инфекционист"
+},
+
+{
+name:"Туберкулёз",
+keywords:["кашель","кровь","похудение"],
+doctor:"Фтизиатр"
+},
+
+{
+name:"Гепатит",
+keywords:["печень","желтуха","тошнота"],
+doctor:"Гепатолог"
+},
+
+{
+name:"Ветрянка",
+keywords:["сыпь","температура","пузырьки"],
+doctor:"Педиатр"
+},
+
+{
+name:"Корь",
+keywords:["сыпь","кашель","температура"],
+doctor:"Инфекционист"
+},
+
+{
+name:"Краснуха",
+keywords:["сыпь","лимфоузлы"],
+doctor:"Инфекционист"
+},
+
+{
+name:"ОРВИ",
+keywords:["насморк","кашель","температура"],
+doctor:"Терапевт"
+},
+
+{
+name:"Обезвоживание",
+keywords:["жажда","слабость","сухость"],
+doctor:"Терапевт"
+},
+
+{
+name:"Головокружение",
+keywords:["кружится","голова","равновесие"],
+doctor:"Невролог"
+},
+
+{
+name:"Конъюнктивит",
+keywords:["глаза","покраснение","слезы"],
+doctor:"Офтальмолог"
+},
+
+{
+name:"Катаракта",
+keywords:["зрение","глаза","мутно"],
+doctor:"Офтальмолог"
+},
+
+{
+name:"Глаукома",
+keywords:["давление в глазах","зрение"],
+doctor:"Офтальмолог"
 }
 
-function loadHistory(){
-
-    let history =
-        JSON.parse(localStorage.getItem("patients")) || [];
-
-    const historyDiv =
-        document.getElementById("history");
-
-    historyDiv.innerHTML = "";
-
-    history.forEach(function(patient){
-
-        historyDiv.innerHTML +=
-        `
-        <div class="history-item">
-
-            <h5>${patient.name}</h5>
-
-            <p>
-            Симптомы:
-            ${patient.symptoms}
-            </p>
-
-            <p>
-            Болезнь:
-            ${patient.disease}
-            </p>
-
-        </div>
-        `;
-    });
-
-    patientsCount = history.length;
-
-    updateStats();
-}
+];
 
 function updateStats(){
 
-    document.getElementById(
-        "patients-count"
-    ).innerText = patientsCount;
+patientsCount.innerText =
+patients.length;
 
-    document.getElementById(
-        "analysis-count"
-    ).innerText = analysisCount;
+analysisCount.innerText =
+analysis;
 
-    document.getElementById(
-        "calls-count"
-    ).innerText = callsCount;
+callsCount.innerText =
+calls;
+
 }
+
+function renderHistory(){
+
+historyDiv.innerHTML = "";
+
+patients.forEach(function(patient){
+
+historyDiv.innerHTML += `
+
+<div class="card mb-3">
+
+<div class="card-body">
+
+<h5>${patient.name}</h5>
+
+<p>
+${patient.symptoms}
+</p>
+
+<p>
+<strong>${patient.disease}</strong>
+</p>
+
+<p>
+${patient.doctor}
+</p>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+renderHistory();
+updateStats();
+
+analyzeBtn.addEventListener("click", function(){
+
+const name =
+nameInput.value.trim();
+
+const symptoms =
+symptomsInput.value.trim();
+
+if(!name || !symptoms){
+
+alert("Заполните поля");
+
+return;
+
+}
+
+let foundDisease =
+"Не определено";
+
+let foundDoctor =
+"Терапевт";
+
+const text =
+symptoms.toLowerCase();
+
+for(let disease of diseases){
+
+for(let keyword of disease.keywords){
+
+if(text.includes(keyword)){
+
+foundDisease =
+disease.name;
+
+foundDoctor =
+disease.doctor;
+
+}
+
+}
+
+}
+
+resultDiv.innerHTML = `
+
+<div class="alert alert-success">
+
+<h4>
+🧠 Анализ завершён
+</h4>
+
+<p>
+Болезнь:
+${foundDisease}
+</p>
+
+<p>
+Врач:
+${foundDoctor}
+</p>
+
+<p>
+Пациент:
+${name}
+</p>
+
+<p>
+Симптомы:
+${symptoms}
+</p>
+
+</div>
+
+`;
+
+patients.push({
+
+name:name,
+symptoms:symptoms,
+disease:foundDisease,
+doctor:foundDoctor
+
+});
+
+localStorage.setItem(
+"patients",
+JSON.stringify(patients)
+);
+
+analysis++;
+
+localStorage.setItem(
+"analysis",
+analysis
+);
+
+renderHistory();
+updateStats();
+
+nameInput.value = "";
+symptomsInput.value = "";
+
+});
+
+consultBtn.addEventListener("click", function(){
+
+const phone =
+document.getElementById("consult-phone").value;
+
+const email =
+document.getElementById("consult-email").value;
+
+const text =
+document.getElementById("consult-text").value;
+
+if(!phone || !email || !text){
+
+alert("Заполните все поля");
+
+return;
+
+}
+
+consultResult.innerHTML = `
+
+<div class="alert alert-success">
+
+✅ Ваша информация успешно отправлена.
+Скоро мы свяжемся с вами.
+
+</div>
+
+`;
+
+document.getElementById("consult-phone").value = "";
+document.getElementById("consult-email").value = "";
+document.getElementById("consult-text").value = "";
+
+});
+
+callBtn.addEventListener("click", function(){
+
+if(!addressInput.value){
+
+alert("Введите адрес");
+
+return;
+
+}
+
+calls++;
+
+localStorage.setItem(
+"calls",
+calls
+);
+
+updateStats();
+
+doctorStatus.style.display =
+"block";
+
+let progress = 0;
+
+progressBar.style.width = "0%";
+
+const interval = setInterval(function(){
+
+progress += 10;
+
+progressBar.style.width =
+progress + "%";
+
+statusText.innerText =
+"🚑 Врач едет";
+
+eta.innerText =
+(15 - Math.floor(progress/10))
++ " минут";
+
+gps.innerText =
+"51.1605, 71.4704";
+
+if(progress >= 100){
+
+statusText.innerText =
+"✅ Врач прибыл";
+
+eta.innerText =
+"0 минут";
+
+clearInterval(interval);
+
+}
+
+},1000);
+
+});
+
+});
