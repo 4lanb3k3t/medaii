@@ -1,5 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
 from .models import Patient
+
 from .backend import analyze_symptoms
 
 
@@ -13,23 +15,20 @@ def home(request):
 
         symptoms = request.POST.get("symptoms")
 
-        disease, doctor = analyze_symptoms(symptoms)
+        result = analyze_symptoms(symptoms)
 
         Patient.objects.create(
             name=name,
             symptoms=symptoms,
-            disease=disease,
-            doctor=doctor
+            disease=result["disease"],
+            doctor=result["doctor"]
         )
 
-        result = {
-            "disease": disease,
-            "doctor": doctor
-        }
+        return redirect("/")
 
     patients = Patient.objects.all().order_by("-id")
 
     return render(request, "patients/list.html", {
-        "result": result,
-        "patients": patients
+        "patients": patients,
+        "result": result
     })
