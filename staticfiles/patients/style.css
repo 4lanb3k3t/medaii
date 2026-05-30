@@ -1,0 +1,41 @@
+body{
+
+    background:#0f172a;
+
+    color:white;
+
+    font-family:Arial;
+
+}
+
+.card-ui{
+
+    background:white;
+
+    color:black;
+
+    border-radius:20px;
+
+    padding:25px;
+
+}
+
+.logo{
+
+    font-size:40px;
+
+    font-weight:bold;
+
+}
+
+.founder{
+
+    width:120px;
+
+    height:120px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+}
